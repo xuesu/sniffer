@@ -21,3 +21,9 @@ def get_i_from_raw_bytes(s, start_pos=0, end_pos=0, reverse_bytes=False):
         bitmask = ((1 << bitcnt) - 1) << (8 - rbits)
         ans += (s[i] & bitmask) >> (8 - rbits)
     return ans
+
+
+def get_b_from_raw_bytes(s, pos):
+    ind = pos // 8
+    r = 7 - pos % 8
+    return (s[ind] & (1 << r)) != 0

@@ -18,7 +18,7 @@ class ARPPacket(packet.ethernet.EthernetPacket):
         self.prot_type = ARPPacket.FRAMETYPE.IP
         self.hard_size = -1
         self.prot_size = -1
-        self.op = None
+        self.arp_op = None
         self.sender_addr = None
         self.sender_ip_addr = None
         self.target_addr = None
@@ -27,12 +27,12 @@ class ARPPacket(packet.ethernet.EthernetPacket):
 
     @staticmethod
     def unpack(buff):
-        op = ARPPacket.OPTYPE(int.from_bytes(buff[6:8], byteorder='big'))
-        if op == ARPPacket.OPTYPE.ARPREPLY or op == ARPPacket.OPTYPE.RARPREQUEST:
+        arp_op = ARPPacket.OPTYPE(int.from_bytes(buff[6:8], byteorder='big'))
+        if arp_op == ARPPacket.OPTYPE.ARPREPLY or arp_op == ARPPacket.OPTYPE.RARPREQUEST:
             pat = ARPPacket()
         else:
             pat = RARPPacket()
-        pat.op = op
+        pat.arp_op = arp_op
         pat.hard_type = int.from_bytes(buff[:2], byteorder='big')
         pat.prot_type = packet.ethernet.EthernetPacket.FRAMETYPE(int.from_bytes(buff[2:4], byteorder='big'))
         pat.hard_size = buff[4]

@@ -9,6 +9,7 @@ class EthernetPacket(packet.Packet):
         IP = 0x0800
         ARP = 0x0806
         RARP = 0x8035
+        IPv6 = 0x86DD
 
     def __init__(self):
         super(EthernetPacket, self).__init__()

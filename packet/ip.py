@@ -18,7 +18,7 @@ class IPPacket(packet.ethernet.EthernetPacket):
 
     def __init__(self):
         super(IPPacket, self).__init__()
-        self.ipversion = None
+        self.ip_version = None
         self.subprotocol = None
         self.src_ip = None
         self.des_ip = None
@@ -44,28 +44,34 @@ class IPv4Packet(IPPacket):
         self.mf = False
         self.offset = 0
         self.ttl = 0
-        self.checksum = 0
-        self.options = None
-        self.ipversion = IPPacket.IPVERSION.V4
+        self.ip_checksum = 0
+        self.ip_options = None
+        self.ip_version = IPPacket.IPVERSION.V4
+        self.ip_totoal_length = -1
 
     @staticmethod
     def unpack(buff):
-        pac = IPv4Packet()
         ihl = utils.get_i_from_raw_bytes(buff, 4, 8) * 4
         header = buff[:ihl]
+        payload = buff[ihl:]
+        if IPPacket.SUBPROTOCOL(buff[9]) == IPPacket.SUBPROTOCOL.TCP:
+            import packet.tcp
+            pac = packet.tcp.TCPPacket.unpack(payload)
+        else:
+            pac = IPv4Packet()
+        pac.ip_totoal_length = int.from_bytes(header[2:4], byteorder='big')
+        pac.subprotocol = IPPacket.SUBPROTOCOL(header[9])
         pac.dscp = utils.get_i_from_raw_bytes(header, 8, 14)
         pac.ecn = utils.get_i_from_raw_bytes(header, 14, 16)
-        tl = int.from_bytes(header[2:4], byteorder='big')
-        pac.payload = buff[ihl:tl]
+        pac.payload = payload
         pac.identification = header[4]
-        pac.df = False if utils.get_i_from_raw_bytes(header, 49, 50) == 0 else True
-        pac.mf = False if utils.get_i_from_raw_bytes(header, 50, 51) == 0 else True
+        pac.df = utils.get_b_from_raw_bytes(header, 49)
+        pac.mf = utils.get_b_from_raw_bytes(header, 50)
         pac.offset = utils.get_i_from_raw_bytes(header, 51, 64) * 8
         pac.ttl = header[8]
-        pac.subprotocol = IPPacket.SUBPROTOCOL(header[9])
-        pac.checksum = int.from_bytes(header[10:12], byteorder='big')
+        pac.ip_checksum = int.from_bytes(header[10:12], byteorder='big')
         pac.src_ip = socket.inet_ntoa(header[12:16])
         pac.des_ip = socket.inet_ntoa(header[16:20])
         if ihl > 20:
-            pac.options = header[20:]
+            pac.ip_options = header[20:]
         return pac

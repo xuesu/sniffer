@@ -91,8 +91,9 @@
                 </div>
                 {% for prot in protocols %}
                 <label class="checkbox ct-blue" for="protocolCheckboxes_{{prot}}">
-                    <input type="checkbox" class="protocolCheckboxes" id="protocolCheckboxes_{{prot}}" data-toggle="checkbox"
-                           value="{{prot}}" checked>
+                    <input type="checkbox" class="protocolCheckboxes" id="protocolCheckboxes_{{prot}}"
+                           data-toggle="checkbox"
+                           value="{{prot}}">
                     {{prot}}
                 </label>
                 {% endfor %}
@@ -105,10 +106,9 @@
             </div>
         </div><!-- /left of the main page-->
         <!-- right of the main page -->
-        <div class="col-md-7">
-
+        <div class="col-md-7" >
             <div class="row tim-row">
-                <table id="packetSimple" class="full">
+                <table id="packetSimple" class="packet_table">
                     <thead>
                     <th>NO.</th>
                     <th>Time</th>
@@ -117,13 +117,8 @@
                 </table>
             </div>
             <div class="row tim-row">
-
-                <table id="packetComplex" class="full">
-                    <thead>
-                    <th>Name</th>
-                    <th>Value</th>
-                    </thead>
-                </table>
+                <div class='panel-group' id='packetComplex'>
+                </div>
             </div>
         </div><!-- /right of the main page-->
     </div>

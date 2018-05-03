@@ -14,7 +14,6 @@ $(document).ready(function(){
     });
     $('#RunStopBtn').on('click', function() {
         socket.emit("stop_req");
-        myalert("Started.");
     });
 	socket.on('set_device_resp', function(msg) {
         $('#deviceName').text(msg);
@@ -28,6 +27,9 @@ $(document).ready(function(){
 	socket.on("stop_resp", function(e){
         myalert("Stopped.");
 	});
+	socket.on("start_resp", function(e){
+        myalert("Started.");
+	});
 	socket.on("run_resp", function(obj){
 	    addPacket(obj);
 	});
@@ -37,25 +39,34 @@ function myalert(v){
 }
 
 function addPacketSimple(pak){
-    $("#packetSimple").append("<tr  class='packet_simple_tr' onclick='showPacket(" + pak.num + ")'>" + "<td>" + pak.num + "</td>"+ "<td>" + pak.catch_time + "</td>"+ "<td>" + pak.final_protocol + "</td>"+ "</tr>");
+    $("#packetSimple").append("<tr  class='packet_simple_tr' onclick='showPacket(" + pak['BASIC'].num + ")'>" + "<td>" + pak['BASIC'].num + "</td>"+ "<td>" + pak['BASIC'].catch_time + "</td>"+ "<td>" + pak['BASIC'].final_protocol + "</td>"+ "</tr>");
 }
 
 function showPacket(pak_num){
-    $(".packet_complex_tr").remove();
+    $(".packet_complex_panel").remove();
     var pak;
     for (var i = 0; i < packets.length;i++){
-        if(packets[i].num == pak_num){
+        if(packets[i]['BASIC'].num == pak_num){
             pak = packets[i];
             break;
         }
     }
     if(pak != undefined){
-        for (var property in pak) {
-            if(pak.hasOwnProperty(property)) {
-                $("#packetComplex").append("<tr class='packet_complex_tr'>" + "<td>" + property + "</td>"+ "<td>" + pak[property] + "</td>" + "</tr>");
-             }
+        var protos = Object.keys(pak);
+        protos.sort();
+        for (var i in protos){
+            var protocol_name = protos[i];
+            var table_content = ""
+            var properties = Object.keys(pak[protocol_name]);
+            properties.sort();
+            for (var j in  properties){
+                var property = properties[j];
+                 table_content += "<tr>" + "<td>" + property + "</td>"+ "<td>" + pak[protocol_name][property] + "</td>" + "</tr>";
+            }
+            $("#packetComplex").append("<div class='panel panel-default packet_complex_panel'><div class='panel-heading'><h4 class='panel-title'><a data-target='#collapse" + protocol_name + "' href='#collapse" + protocol_name + "' data-toggle='gsdk-collapse'>" + protocol_name + "</a></h4></div><div id='collapse" + protocol_name + "' class='panel-collapse collapse'><div class='panel-body'><table class='packet_table'><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>" + table_content + "</tbody></table></div></div></div>");
         }
     }
+    init_gsdk_collapse();
 }
 function addPacket(pak){
         if(packets.length>=100){

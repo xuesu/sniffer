@@ -3,10 +3,10 @@
 @author: xuesu
 """
 
-import os
 import logging
 import logging.config
 import logging.handlers
+import os
 
 
 def new_logger(name, level):
@@ -22,4 +22,3 @@ def new_logger(name, level):
     file_handler.setLevel('INFO')
     logger.setLevel(level)
     return logger
-

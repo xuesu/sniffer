@@ -7,9 +7,8 @@ import ctypes
 import threading
 
 import functions.winpcapy_types as wtypes
-import packet
 import loggers
-
+import packet
 from exceptions import *
 
 HANDLER_SIGNATURE = ctypes.CFUNCTYPE(None, ctypes.POINTER(ctypes.c_ubyte),
@@ -63,9 +62,13 @@ class WinPCapThreadManager:
             self.thread = threading.Thread(target=self.run)
             self.thread.start()
 
+    def stop(self):
+        if self.thread is not None:
+            self.should_stop = True
+            self.thread.stop()
+
 
 class WinPCap:
-
     def __init__(self):
         self.device_infos = None
         self.lock = threading.Lock()

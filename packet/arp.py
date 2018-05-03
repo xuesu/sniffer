@@ -42,11 +42,14 @@ class ARPPacket(packet.ethernet.EthernetPacket):
             pat.sender_ip_addr = utils.string2hexip(buff[8 + pat.hard_size: 8 + pat.hard_size + pat.prot_size])
         else:
             pat.sender_ip_addr = socket.inet_ntoa(buff[8 + pat.hard_size: 8 + pat.hard_size + pat.prot_size])
-        pat.target_addr = utils.string2hexip(buff[8 + pat.hard_size + pat.prot_size: 8 + pat.hard_size * 2 + pat.prot_size])
+        pat.target_addr = utils.string2hexip(
+            buff[8 + pat.hard_size + pat.prot_size: 8 + pat.hard_size * 2 + pat.prot_size])
         if pat.prot_size == 6:
-            pat.target_ip_addr = utils.string2hexip(buff[8 + 2 * pat.hard_size + pat.prot_size:8 + 2 * pat.hard_size + pat.prot_size * 2])
+            pat.target_ip_addr = utils.string2hexip(
+                buff[8 + 2 * pat.hard_size + pat.prot_size:8 + 2 * pat.hard_size + pat.prot_size * 2])
         else:
-            pat.target_ip_addr = socket.inet_ntoa(buff[8 + 2 * pat.hard_size + pat.prot_size:8 + 2 * pat.hard_size + pat.prot_size * 2])
+            pat.target_ip_addr = socket.inet_ntoa(
+                buff[8 + 2 * pat.hard_size + pat.prot_size:8 + 2 * pat.hard_size + pat.prot_size * 2])
         return pat
 
 

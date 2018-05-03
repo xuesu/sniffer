@@ -23,3 +23,22 @@
 05-01 20:15:48 - api - ERROR - AttributeError:'WinPCapThreadManager' object has no attribute 'stop'
 05-01 20:26:32 - api - ERROR - UnableSetFilterError:Unable to Set Filter pcap_compile. b'udp and ip and tcp'
 05-01 20:34:59 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-02 19:46:32 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 11:29:53 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 11:42:27 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 12:29:36 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 12:38:04 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:00:22 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:02:12 - api - ERROR - AttributeError:'WinPCapThreadManager' object has no attribute 'stop'
+05-03 15:02:25 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:02:46 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:02:47 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:03:11 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:03:11 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:03:11 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:03:11 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:03:16 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:05:47 - api - ERROR - AttributeError:'WinPCapThreadManager' object has no attribute 'stop'
+05-03 15:05:55 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.
+05-03 15:07:41 - api - ERROR - AttributeError:'WinPCapThreadManager' object has no attribute 'stop'
+05-03 15:12:37 - api - ERROR - ThreadUnInitializedError:This thread haven't been properly initialized.

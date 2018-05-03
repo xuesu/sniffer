@@ -40,61 +40,64 @@ $(document).ready(function(){
             });
         } 
     });
-    
+    init_gsdk_collapse();
+});
+
+
+function init_gsdk_collapse(){
     $('[data-toggle="gsdk-collapse"]').hover(
     function(){
             console.log('on hover');
             var thisdiv = $(this).attr("data-target");
 
             if(!$(this).hasClass('state-open')){
-                $(this).addClass('state-hover');                
+                $(this).addClass('state-hover');
                 $(thisdiv).css({
                     'height':'30px'
-                });    
+                });
             }
-            
+
         },
         function(){
             var thisdiv = $(this).attr("data-target");
             $(this).removeClass('state-hover');
-            
+
             if(!$(this).hasClass('state-open')){
                 $(thisdiv).css({
                     'height':'0px'
-                });     
-            }          
+                });
+            }
         }
     );
-    
+
     $('[data-toggle="gsdk-collapse"]').click(
     function(event){
             event.preventDefault();
-                        
+
             var thisdiv = $(this).attr("data-target");
             var height = $(thisdiv).children('.panel-body').height();
-            
+
             if($(this).hasClass('state-open')){
                 $(thisdiv).css({
                     'height':'0px',
-                }); 
-                $(this).removeClass('state-open');    
+                });
+                $(this).removeClass('state-open');
             } else {
                 $(thisdiv).css({
                     'height':height,
-                }); 
+                });
                 $(this).addClass('state-open');
             }
         }
     );
-});
+    $(function () {
+        $('[data-toggle="gsdk-collapse"]').each(function () {
+            var thisdiv = $(this).attr("data-target");
+            $(thisdiv).addClass("gsdk-collapse");
+        });
 
-$(function () {
-    $('[data-toggle="gsdk-collapse"]').each(function () {
-        var thisdiv = $(this).attr("data-target");
-        $(thisdiv).addClass("gsdk-collapse");
     });
-    
-});
+}
 
 //$(document).scroll(function() {
 //    if( $(this).scrollTop() > 260 ) {

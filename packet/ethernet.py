@@ -21,9 +21,9 @@ class EthernetPacket(packet.Packet):
 
     @staticmethod
     def unpack(buff):
-        frame_type = EthernetPacket.FRAMETYPE(int.from_bytes(buff[12:14], byteorder='big'))
+        frame_type = utils.get_enum_from_value(EthernetPacket.FRAMETYPE, int.from_bytes(buff[12:14], byteorder='big'))
         payload = buff[14:]
-        if frame_type == EthernetPacket.FRAMETYPE.IP:
+        if frame_type == EthernetPacket.FRAMETYPE.IP or frame_type == EthernetPacket.FRAMETYPE.IPv6:
             import packet.ip
             pac = packet.ip.IPPacket.unpack(payload)
         elif frame_type == EthernetPacket.FRAMETYPE.ARP:
@@ -39,6 +39,3 @@ class EthernetPacket(packet.Packet):
         pac.des_mac = utils.string2hexip(buff[:6])
         pac.src_mac = utils.string2hexip(buff[6:12])
         return pac
-
-
-

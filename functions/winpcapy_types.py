@@ -9,9 +9,9 @@
 # -------------------------------------------------------------------------------
 
 
+import sys
 from ctypes import *
 from ctypes.util import find_library
-import sys
 
 WIN32 = False
 HAVE_REMOTE = False
@@ -75,6 +75,7 @@ timeval._fields_ = [('tv_sec', c_long),
 class sockaddr(Structure):
     _fields_ = [("sa_family", c_ushort),
                 ("sa_data", c_char * 14)]
+
 
 ##
 ## END misc

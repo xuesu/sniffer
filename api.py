@@ -3,7 +3,6 @@ import flask_socketio
 
 import functions.winpcapy as winpcapy
 import loggers
-
 from exceptions import *
 
 app = flask.Flask("network", static_folder=r'templates\assets', static_url_path='/assets')
@@ -51,6 +50,7 @@ def set_protos(protos):
 @socketio.on('run_req')
 def run_thread():
     winp.run_t(flask.request.sid, lambda x: socketio.emit("run_resp", x.to_printable_dict()))
+    socketio.emit('start_resp')
 
 
 @socketio.on('stop_req')

@@ -103,14 +103,16 @@ class WinPCapThreadManager:
         self.addr_filters = []
 
     def get_proto_filter_str(self):
-        return " or ".join(set(["({})".format(proto.get_filter_str()) for proto in self.allowed_protocos])).strip('(').strip(')')
+        return " or ".join(set(["({})".format(proto.get_filter_str()) for proto in self.allowed_protocos])).strip(
+            '(').strip(')')
 
     def get_filter_str(self):
         filter_strs = []
         if self.allowed_protocos:
             filter_strs.append(self.get_proto_filter_str())
         if self.addr_filters:
-            filter_strs.append(" or ".join(set(["({})".format(addr_filter.get_filter_str()) for addr_filter in self.addr_filters])))
+            filter_strs.append(
+                " or ".join(set(["({})".format(addr_filter.get_filter_str()) for addr_filter in self.addr_filters])))
         return ' and '.join(["({})".format(filter_str) for filter_str in filter_strs]).strip('(').strip(')')
 
     def run(self):

@@ -1,7 +1,7 @@
 import codecs
-import dpkt
 import enum
 
+import dpkt
 
 default_coding_list = ["ascii", "utf_8", "gb2312", "gbk", "gb18030", "big5", "big5hkscs", "utf_16", "utf_16_be",
                        "utf_16_le", "utf_7"]

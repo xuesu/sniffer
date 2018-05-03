@@ -4,6 +4,7 @@
 # -*- coding: utf-8 -*-
 
 import ctypes
+import enum
 import threading
 
 import functions.winpcapy_types as wtypes
@@ -19,6 +20,75 @@ BUFFSZ = 512
 logger = loggers.new_logger("winpcapy", "DEBUG")
 
 
+class AddressFilter:
+    class FromType(enum.Enum):
+        SRC_OR_DST = 0
+        SRC = 1
+        DST = 2
+        SRC_AND_DST = 3
+
+        @staticmethod
+        def from_str(s):
+            s = s.lower()
+            if s == 'src or dst':
+                return AddressFilter.FromType.SRC_OR_DST
+            elif s == 'src and dst':
+                return AddressFilter.FromType.SRC_AND_DST
+            elif s == 'src':
+                return AddressFilter.FromType.SRC
+            elif s == 'dst':
+                return AddressFilter.FromType.DST
+            return None
+
+        def to_str(self):
+            if AddressFilter.FromType.SRC_OR_DST == self:
+                return 'src or dst'
+            elif AddressFilter.FromType.SRC_AND_DST == self:
+                return 'src and dst'
+            elif AddressFilter.FromType.SRC == self:
+                return 'src'
+            elif AddressFilter.FromType.DST == self:
+                return 'dst'
+            return None
+
+    class AddrType(enum.Enum):
+        HOST = 0
+        MAC = 1
+        PORT = 2
+
+        @staticmethod
+        def from_str(s):
+            s = s.lower()
+            if s == 'port':
+                return AddressFilter.AddrType.PORT
+            elif s == 'mac address':
+                return AddressFilter.AddrType.MAC
+            elif s == 'host':
+                return AddressFilter.AddrType.HOST
+            return None
+
+        def to_str(self):
+            if AddressFilter.AddrType.PORT == self:
+                return 'port'
+            elif AddressFilter.AddrType.MAC == self:
+                return "ether"
+            elif AddressFilter.AddrType.HOST == self:
+                return "host"
+            return None
+
+    def __init__(self, from_s=None, type_s=None, addr=None):
+        self.addrFrom = AddressFilter.FromType.from_str(from_s)
+        self.addrType = AddressFilter.AddrType.from_str(type_s)
+        self.addr = addr
+        if self.addrType == AddressFilter.AddrType.MAC:
+            self.addr = self.addr.replace("-", ":")
+
+    def get_filter_str(self):
+        if self.addrType == AddressFilter.AddrType.MAC:
+            return "{} {} {}".format(self.addrType.to_str(), self.addrFrom.to_str(), self.addr)
+        return "{} {} {}".format(self.addrFrom.to_str(), self.addrType.to_str(), self.addr)
+
+
 class WinPCapThreadManager:
     def __init__(self, *args, **kwargs):
         self.phandle = None
@@ -27,10 +97,21 @@ class WinPCapThreadManager:
         self.callback = None
         self.device_name = ""
         self.allowed_protocos = set()
-        self.filter_str = ""
         self.num = 0
         self.thread = None
         self.should_rest = False
+        self.addr_filters = []
+
+    def get_proto_filter_str(self):
+        return " or ".join(set(["({})".format(proto.get_filter_str()) for proto in self.allowed_protocos])).strip('(').strip(')')
+
+    def get_filter_str(self):
+        filter_strs = []
+        if self.allowed_protocos:
+            filter_strs.append(self.get_proto_filter_str())
+        if self.addr_filters:
+            filter_strs.append(" or ".join(set(["({})".format(addr_filter.get_filter_str()) for addr_filter in self.addr_filters])))
+        return ' and '.join(["({})".format(filter_str) for filter_str in filter_strs]).strip('(').strip(')')
 
     def run(self):
         while not self.should_stop:
@@ -46,7 +127,7 @@ class WinPCapThreadManager:
                     self.phandle = WinPCap.open_device(self.device_name)
                 next_packet = WinPCap.pcap_read_nxt(self.phandle)
                 if next_packet is not None:
-                    next_packet = packet.Packet.unpack(next_packet)
+                    next_packet = packet.Packet(next_packet)
                     next_packet.num = self.num
                     self.num += 1
                     if next_packet.final_protocol in self.allowed_protocos:
@@ -167,16 +248,46 @@ class WinPCap:
         if sid not in self.threads:
             raise ThreadUnInitializedError()
         protos = set([packet.Packet.PROTOCOL[proto.upper()] for proto in protos])
-        filter_str = ' and '.join(set([proto.get_filter_str() for proto in protos]))
+        self.threads[sid].allowed_protocos = set.union(*[proto.get_sub_protocol() for proto in protos])
         self.threads[sid].should_rest = True
         self.threads[sid].lock.acquire()
         try:
+            filter_str = self.threads[sid].get_filter_str()
             WinPCap.pcap_set_filter(self.threads[sid].phandle, filter_str)
-            self.threads[sid].filter_str = filter_str
-            self.threads[sid].allowed_protocos = set.union(*[proto.get_sub_protocol() for proto in protos])
         finally:
             self.threads[sid].should_rest = False
             self.threads[sid].lock.release()
+        return self.threads[sid].get_proto_filter_str()
+
+    def add_addr_filter_t(self, sid, from_s, type_s, addr):
+        if sid not in self.threads:
+            raise ThreadUnInitializedError()
+        addr_filter = AddressFilter(from_s, type_s, addr)
+        self.threads[sid].should_rest = True
+        self.threads[sid].lock.acquire()
+        try:
+            self.threads[sid].addr_filters.append(addr_filter)
+            filter_str = self.threads[sid].get_filter_str()
+            WinPCap.pcap_set_filter(self.threads[sid].phandle, filter_str)
+        finally:
+            self.threads[sid].should_rest = False
+            self.threads[sid].lock.release()
+        return [addr_filter.get_filter_str() for addr_filter in self.threads[sid].addr_filters]
+
+    # ind from 1
+    def remove_addr_filter_t(self, sid, ind):
+        if sid not in self.threads:
+            raise ThreadUnInitializedError()
+        self.threads[sid].should_rest = True
+        self.threads[sid].lock.acquire()
+        try:
+            self.threads[sid].addr_filters.pop(ind)
+            filter_str = self.threads[sid].get_filter_str()
+            WinPCap.pcap_set_filter(self.threads[sid].phandle, filter_str)
+        finally:
+            self.threads[sid].should_rest = False
+            self.threads[sid].lock.release()
+        return [addr_filter.get_filter_str() for addr_filter in self.threads[sid].addr_filters]
 
     def set_device_t(self, sid, device_name):
         self.lock.acquire()
@@ -214,5 +325,5 @@ class WinPCap:
 
     def get_filter_str_now(self, sid):
         if sid in self.threads:
-            return self.threads[sid].filter_str
+            return self.threads[sid].get_filter_str()
         return None

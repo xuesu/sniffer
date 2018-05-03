@@ -15,6 +15,12 @@ $(document).ready(function(){
     $('#RunStopBtn').on('click', function() {
         socket.emit("stop_req");
     });
+    $('.addrTypeLi').on('click', function() {
+       $("#addrType").text($(this).text());
+    });
+    $('.addrFromLi').on('click', function() {
+       $("#addrFrom").text($(this).text());
+    });
 	socket.on('set_device_resp', function(msg) {
         $('#deviceName').text(msg);
 	});
@@ -32,6 +38,12 @@ $(document).ready(function(){
 	});
 	socket.on("run_resp", function(obj){
 	    addPacket(obj);
+	});
+	socket.on("add_addr_filter_resp", function(obj){
+	    showExistedFilter(obj);
+	});
+	socket.on("remove_addr_filter_resp", function(obj){
+	    showExistedFilter(obj);
 	});
 });
 function myalert(v){
@@ -76,3 +88,19 @@ function addPacket(pak){
         addPacketSimple(pak);
         packets.push(pak);
 };
+
+function showExistedFilter(filters_strs){
+    var listStr = "";
+    for(var i = 0;i < filters_strs.length;i++){
+        listStr += "<li>" + filters_strs[i] + "<a href='#' onclick='socket.emit(\"remove_addr_filter_req\", " + i + ")'>X</a></li>";
+    }
+    $("#addedAddrFilters").empty();
+    $("#addedAddrFilters").append(listStr);
+}
+
+function addAddrFilter() {
+    var from_s = $("#addrFrom").text();
+    var type_s = $("#addrType").text();
+    var addr = $("#filterNewAddr").val();
+    socket.emit("add_addr_filter_req", from_s, type_s, addr);
+}

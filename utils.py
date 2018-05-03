@@ -1,4 +1,7 @@
 import codecs
+import dpkt
+import enum
+
 
 default_coding_list = ["ascii", "utf_8", "gb2312", "gbk", "gb18030", "big5", "big5hkscs", "utf_16", "utf_16_be",
                        "utf_16_le", "utf_7"]
@@ -56,3 +59,24 @@ def get_enum_from_value(cls, v):
     except ValueError:
         return v
     return enum_obj
+
+
+def packet2printable_dict(pak):
+    ans = {"BASIC": {}}
+    for field_name in vars(pak):
+        if field_name != 'data':
+            ans["BASIC"][field_name] = str(getattr(pak, field_name))
+    pak = pak.data
+    while isinstance(pak, dpkt.Packet):
+        class_name = pak.__class__.__name__.upper()
+        ans[class_name] = dict()
+        for field_name, _, _ in pak.__hdr__:
+            field_value = getattr(pak, field_name)
+            if isinstance(field_value, enum.Enum):
+                ans[class_name][field_name] = field_value.name
+            elif isinstance(field_value, bytes):
+                ans[class_name][field_name] = codecs.encode(b"\xff", "hex_codec")
+            else:
+                ans[class_name][field_name] = str(field_value)
+        pak = pak.data
+    return ans

@@ -3,6 +3,8 @@ import flask_socketio
 
 import functions.winpcapy as winpcapy
 import loggers
+import packet
+import utils
 from exceptions import *
 
 app = flask.Flask("network", static_folder=r'templates\assets', static_url_path='/assets')
@@ -43,13 +45,13 @@ def set_device(device_name):
 
 @socketio.on('set_protos_req')
 def set_protos(protos):
-    winp.set_protos_t(flask.request.sid, protos)
-    socketio.emit('set_protos_resp', ' and '.join(protos))
+    proto_filter_str = winp.set_protos_t(flask.request.sid, protos)
+    socketio.emit('set_protos_resp', proto_filter_str)
 
 
 @socketio.on('run_req')
 def run_thread():
-    winp.run_t(flask.request.sid, lambda x: socketio.emit("run_resp", x.to_printable_dict()))
+    winp.run_t(flask.request.sid, lambda x: socketio.emit("run_resp", utils.packet2printable_dict(x)))
     socketio.emit('start_resp')
 
 
@@ -59,11 +61,23 @@ def stop_thread():
     socketio.emit('stop_resp')
 
 
+@socketio.on('add_addr_filter_req')
+def add_addr_filter(from_s, type_s, addr):
+    addr_filters_strs = winp.add_addr_filter_t(flask.request.sid, from_s.strip(), type_s.strip(), addr.strip())
+    socketio.emit('add_addr_filter_resp', addr_filters_strs)
+
+
+@socketio.on('remove_addr_filter_req')
+def remove_addr_filter(ind):
+    addr_filters_strs = winp.remove_addr_filter_t(flask.request.sid, ind)
+    socketio.emit('remove_addr_filter_resp', addr_filters_strs)
+
+
 @app.route('/')
 def index():
     return flask.render_template(r"index.html",
                                  device_infos=winp.list_all_devices(),
-                                 protocols=["HTTP", "FTP", "TCP", "UDP", "ARP", "RARP", "IP", "ICMP"])
+                                 protocols=[proto.name for proto in packet.Packet.PROTOCOL][1:])
 
 
 if __name__ == '__main__':

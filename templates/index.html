@@ -84,9 +84,48 @@
         <!-- left of the main page -->
         <div class="col-md-3">
             <div class="row tim-row">
+                <h4>Address</h4>
+                <div>
+                    <h5>Existed Filters:</h5>
+                    <ol id="addedAddrFilters">
+                    </ol>
+                </div>
+                <div class="form-group has-success">
+                    From:
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="addrFrom" data-toggle="dropdown">
+                            src or dst
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="addrFromLi">src or dst</a></li>
+                            <li><a href="#" class="addrFromLi">src and dst</a></li>
+                            <li><a href="#" class="addrFromLi">src</a></li>
+                            <li><a href="#" class="addrFromLi">dst</a></li>
+                        </ul>
+                    </div>
+                    Type:
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="addrType" data-toggle="dropdown">
+                            Host
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" class="addrTypeLi">Host</a></li>
+                            <li><a href="#" class="addrTypeLi">MAC Address</a></li>
+                            <li><a href="#" class="addrTypeLi">Port</a></li>
+                        </ul>
+                    </div>
+                    Address/Port:
+                    <input type="text" id="filterNewAddr" value="" class="form-control"/>
+                    <button class="btn btn-primary btn-fill" id="addAddrFilterBtn" onclick="addAddrFilter()">ADD</button>
+                </div>
+            </div>
+
+            <div class="row tim-row">
                 <h4>Protocol</h4>
                 <div class="form-group has-success">
-                    Filters:
+                    Protocol Filters:
                     <input type="text" id="filtersName" value="None" class="form-control" disabled/>
                 </div>
                 {% for prot in protocols %}
@@ -106,7 +145,7 @@
             </div>
         </div><!-- /left of the main page-->
         <!-- right of the main page -->
-        <div class="col-md-7" >
+        <div class="col-md-7">
             <div class="row tim-row">
                 <table id="packetSimple" class="packet_table">
                     <thead>

@@ -12,6 +12,8 @@ import os
 def new_logger(name, level):
     logger = logging.getLogger(name)
     stream_handler = logging.StreamHandler()
+    if not os.path.isdir("logs"):
+        os.mkdir("logs")
     file_handler = logging.handlers.TimedRotatingFileHandler(
         os.path.join('logs', "{}.log".format(name)), when='D')
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m-%d %H:%M:%S')
